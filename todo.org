@@ -1,0 +1,46 @@
+* [#B] see if can retrieve all the frames / buffer data
+** layout configuration
+*** DONE active frame (can have multiple frames in GUI envs)
+*** DONE frame size
+*** DONE all the window their sizes and their positions
+    29.8 each frame has it's own minibuffer window some son't have any
+    (use the minibuffer of another frame)
+** DONE buffer content
+   visible content
+   can reproduce the same layout of character (newline at the same place)
+   (extra data: color?)
+** TODO Minibuffer
+ * what works?
+   * minibuffer ok?
+   * menu M-` ?
+**** ...
+*** alternatives
+**** terminal. input any command
+**** shortcuts
+* client interface
+** terminal
+*** web socket to receive data
+*** can write anywhere
+    have coordonates of where to write
+    have text (must insert \n at window-width)
+*** resizable
+    to accomodate change in emacs
+
+* dump data as string to client
+* send data as json
+** elisp JSON library? (need two-way JS <-> elisp)
+** ?
+* display buffer
+  jquery.terminal
+* ...
+  
+* issues
+** How to get what's displayed on the screen?
+*** (window-start/end) (buffer-substring) approach is lacking:
+**** invisible text
+**** hscroll
+**** wrap
+**** overlay
+**** display table
+*** glyph matrix
+    Not accessible in elisp
