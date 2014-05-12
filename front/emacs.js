@@ -11,14 +11,32 @@ function char_size() {
 }
 
 
+/*
+Naive way to render the visible parts of a buffer
+Doesn't do most of the rendering done by emacs.
+E.g. doesn't handle:
+* invisible text
+* overlay
+* display table
+* color
+
+*/
 function FrameRenderer(width, height){
     this.width = width;
     this.height = height;
     //index i = line i of frame
-    //content at index i = pieces of string at line i
+    //content at index i = fragment of buffers at line i
+    //fragment = starting at column x is the string y
     this.lines = [];
 }
 FrameRenderer.prototype.getLine = function(index){
+    if(index > this.height - 1){
+	var error = new RangeError(index + 
+			       " is outside valid lines (min 0, max " + 
+			       this.height-1 + ")");
+        error.lineRequested = index;
+	throw error;
+    }
     if(this.lines[index])
 	return this.lines[index];
     else{
@@ -42,36 +60,47 @@ FrameRenderer.prototype.addWindow = function(window){
     lines = $.map(lines, function(line){//map flattens
 	return line.split(
 	    //parenthesis to include match in results
-	    RegExp("(.{" + (windowWidth - 1) + "})")
+	    RegExp("(.{" + (windowWidth -2) + "})")
 	).filter(Boolean);//remove "" from the array. "" is falsey.
     });
 
     lines.forEach(function(line, index){
 	this.getLine(window.top + index).push({column: window.left, text: line});
+	//TODO ordered insertion
+	//this.getLine(window.top + index).sort(function(a, b){a.column - b.column});
     }, this);
 }
-FrameRenderer.prototype.renderString = function(){
-    for(var i = 0;i < this.height;i++){
-	
+FrameRenderer.prototype.render = function(){
+    function nSpaces(n){
+	//+ 1 because join inserts between
+	try{
+	return Array(n + 1).join(" ");
+	}catch(err){
+	    console.log(err);
+	}
     }
+    var result = [];
+    for(var i = 0;i < this.height;i++){
+	result.push(this.getLine(i).reduce(function(stringAcc, windowSegment){
+	    return stringAcc +
+	        nSpaces((windowSegment.column - stringAcc.length)) + 
+		windowSegment.text;
+	}, "").replace(/ /g, "&nbsp;"));
+    }
+    return result.join('<br>\n');
 }
 
 var tmp;
 function displayScreen(displayData){
     terminal = $('.terminal-output');
     terminal.empty();
-    terminal.width(Math.ceil(displayData.width * char_size().width));
+    $('.terminal').width(Math.ceil(displayData.width * char_size().width));
+    //terminal.width(Math.ceil(displayData.width * char_size().width));
 
     renderer = new FrameRenderer(displayData.width, displayData.height);
-    renderer.addWindows(displayData.windows);
     tmp = renderer;
-    //terminal.height(Math.ceil(displayData.height * char_size().heigth));
-    //array one entry per line
-    //put left -> str in it
-    //go through array and output data
-    $(displayData.windows).each(function(){
-	
-    });
+    renderer.addWindows(displayData.windows);
+    terminal.append(renderer.render());
 }
 
 function serverMessage(msg){
@@ -84,7 +113,6 @@ var ws;
 function connect(){
     ws = new WebSocket("ws://localhost:8000/socket");
     ws.onopen = function(){
-	alert("connected")
 	ws.send('');
     };
     ws.onmessage = serverMessage;
