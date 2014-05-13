@@ -1,11 +1,12 @@
 (require 'cl)
 (require 'json)
 
+(defvar take-off-docroot (expand-file-name default-directory))
+
 (defun take-off-static-files (request)
       (with-slots (process headers) request
-	(let ((serve-path (expand-file-name (file-relative-name "../front")))
+	(let ((serve-path (expand-file-name (concat take-off-docroot "../front")))
 	      (path (substring (cdr (assoc :GET headers)) 1)))
-	  (message ">%s" serve-path)
 	  (if (ws-in-directory-p serve-path path)
 	      (if (file-directory-p path)
 		  (ws-send-directory-list process
@@ -16,7 +17,6 @@
       ))
 
 (defun take-off-web-socket-receive (proc string)
-	  (message ">%s" "ws receive")
   (process-send-string proc
     (ws-web-socket-frame (take-off-visible-data) )))
 	   
@@ -62,6 +62,23 @@
   hashtable
 )
 
+(defun take-off-set-point-pos (window hashtable)
+  (let ((pointhash (make-hash-table)))
+    (puthash
+     :point
+     pointhash
+     hashtable)
+
+    (mapcar*;zip
+     (lambda (key val)
+       (puthash key val pointhash))
+     '(:x :y)
+     (pos-visible-in-window-p (window-point window) window t))
+
+    hashtable)
+  )
+
+;json encode : hashtable become js object
 (defun take-off-visible-data ()
   (let ((windows-data (make-hash-table)))
     (puthash :width (frame-width) windows-data)
@@ -72,13 +89,14 @@
 	 (with-current-buffer (window-buffer window)
   	   (let ((hash (make-hash-table)))
 	     (take-off-set-window-pos window hash)
-	       (puthash :text
-		 ;window-end is wrong
+	     (take-off-set-point-pos window hash)
+	     (puthash :text
+		 ;TODO window-end can be wrong
 		 ;https://github.com/rolandwalker/window-end-visible
-	       	 (buffer-substring-no-properties 
-                   (window-start window) 
-	       	   (window-end window))
-	         hash)
+	       (buffer-substring-no-properties 
+		(window-start window) 
+		(window-end window))
+	       hash)
 	     hash
 	     )))
        (window-list))
@@ -88,7 +106,6 @@
 )
 
 (take-off-visible-data)
-(print"\n")
 
 ;+mid text
 ;os -- fro
@@ -111,10 +128,9 @@ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab (point)
 ;(point)
 (pos-visible-in-window-p 6126 (selected-window) t)
 
-(pos-visible-in-window-p 6330
-(selected-window) t)
+(pos-visible-in-window-p (window-point)(selected-window) t)
 
-(pos-visible-in-window-p 6392 (selected-window) t);48, 0
+
 
 ;pixel or character
 ;word wrap : start back at zero 

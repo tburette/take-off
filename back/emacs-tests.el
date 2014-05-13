@@ -77,6 +77,8 @@
 (buffer-substring-no-properties  (point-min)  200)
 ;!! word wrap, left of window is no beginning of lines
 (pos-visible-in-window-p (point) (selected-window) t)
+(pos-visible-in-window-p t (selected-window) t)
+
 (window-line-height)
 
 (buffer-string)

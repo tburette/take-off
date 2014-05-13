@@ -12,6 +12,10 @@ function char_size() {
 
 
 /*
+In emacs:
+Frame = entire emacs window
+window = a portion of the window rendering a certain buffer
+
 Naive way to render the visible parts of a buffer
 Doesn't do most of the rendering done by emacs.
 E.g. doesn't handle:
@@ -25,10 +29,11 @@ function FrameRenderer(width, height){
     this.width = width;
     this.height = height;
     //index i = line i of frame
-    //content at index i = fragment of buffers at line i
-    //fragment = starting at column x is the string y
+    //each value is an array of fragments of buffers which together represent text at index i
+    //fragment = {column:<column index> string:<string value>}
     this.lines = [];
 }
+
 FrameRenderer.prototype.getLine = function(index){
     if(index > this.height - 1){
 	var error = new RangeError(index + 
@@ -44,12 +49,49 @@ FrameRenderer.prototype.getLine = function(index){
 	return this.lines[index];
     } 
 }
+
+/*
+@throws RangeError no segment corresponding to x, y
+@returns {object} segment including where x, y is located
+*/
+FrameRenderer.prototype.getFragmentAt = function(x, y){
+    if(!this.lines[y])
+	throw new RangeError("no line " + y);
+    var result;
+    if(this.lines[y].some(function(fragment){
+	if(fragment.column <= x && 
+	   x <= fragment.column + fragment.text.length - 1){
+	    result = fragment;
+	    return true;
+	}
+    })){
+	return result;
+    } else
+	throw new RangeError(
+	    "no fragment at column " + y + " for the line " + x);
+}
+
+/*
+Add data to the segment corresponding to x, y
+@param {object} data key/values to be added to the segment
+@throws RangeError no segment corresponding to x, y
+*/
+FrameRenderer.prototype.addDataToFragment = function(x, y, data){
+    $.extend(this.getFragmentAt(x, y), data);
+}
+
+FrameRenderer.prototype.processData = function(displayData){
+    this.addWindows(displayData.windows);
+}
+
 FrameRenderer.prototype.addWindows = function(windows){
     windows.forEach(function(window){
 	this.addWindow(window);
     }, this);
 }
+
 //TODO missing hscroll handling
+//TODO make sure lines don't expand past :bottom
 FrameRenderer.prototype.addWindow = function(window){
     //split. this excludes "\\n" (backslash n typed in a buffer)
     var lines = window.text.split(/\n/g);
@@ -61,15 +103,24 @@ FrameRenderer.prototype.addWindow = function(window){
 	return line.split(
 	    //parenthesis to include match in results
 	    RegExp("(.{" + (windowWidth -2) + "})")
-	).filter(Boolean);//remove "" from the array. "" is falsey.
+	);//.filter(Boolean);//remove "" from the array. "" is falsey.
     });
 
     lines.forEach(function(line, index){
-	this.getLine(window.top + index).push({column: window.left, text: line});
 	//TODO ordered insertion
-	//this.getLine(window.top + index).sort(function(a, b){a.column - b.column});
+	this.getLine(window.top + index).push({column: window.left, text: line});
+	this.getLine(window.top + index).sort(function(a, b){
+	    return a.column - b.column
+	});
     }, this);
+
+    if(window.point)
+	this.addDataToFragment(window.point.x, 
+			       window.point.y, 
+			       {point: window.point});
+
 }
+
 FrameRenderer.prototype.render = function(){
     function nSpaces(n){
 	//+ 1 because join inserts between
@@ -77,15 +128,38 @@ FrameRenderer.prototype.render = function(){
 	return Array(n + 1).join(" ");
 	}catch(err){
 	    console.log(err);
+	    debugger;
 	}
+    }
+    /*
+     Render the segment
+     @param {object} segment
+     @return {string} the string representation of the segment
+    */
+    function renderSegment(segment){
+	/*
+	 Point (cursor) needs a span to be visible.
+	 Alter string of the segment containing the point (if there is one)
+	 to add the span
+	 */
+	if(!segment.point)
+	    return segment.text.replace(/ /g, "&nbsp;");
+	var x = segment.point.x;
+	//do not check x, y in the segment
+	var renderedLine =  [segment.text.slice(0, x), 
+		'<span class="cursor">' + 
+		  segment.text[x].replace(/ /g, "&nbsp;")  
+                  + '</span>', 
+		  segment.text.slice(x+1, segment.text.length)].join('');
+	return renderedLine;
     }
     var result = [];
     for(var i = 0;i < this.height;i++){
 	result.push(this.getLine(i).reduce(function(stringAcc, windowSegment){
 	    return stringAcc +
 	        nSpaces((windowSegment.column - stringAcc.length)) + 
-		windowSegment.text;
-	}, "").replace(/ /g, "&nbsp;"));
+		renderSegment(windowSegment);
+	}, ""));
     }
     return result.join('<br>\n');
 }
@@ -99,7 +173,8 @@ function displayScreen(displayData){
 
     renderer = new FrameRenderer(displayData.width, displayData.height);
     tmp = renderer;
-    renderer.addWindows(displayData.windows);
+    tmp2 = displayData;
+    renderer.processData(displayData);
     terminal.append(renderer.render());
 }
 

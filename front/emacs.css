@@ -1,3 +1,4 @@
-.terminal {
-    /*width: 3em*/
+.cursor {
+    background-color: #aaa;
+    color: #000;
 }
