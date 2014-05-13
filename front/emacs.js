@@ -10,6 +10,10 @@ function char_size() {
     return result;
 }
 
+function nSpaces(n){
+    //+ 1 because join inserts between
+    return Array(n + 1).join(" ");
+}
 
 /*
 In emacs:
@@ -115,58 +119,62 @@ FrameRenderer.prototype.addWindow = function(window){
     }, this);
 
     if(window.point)
-	this.addDataToFragment(window.point.x, 
-			       window.point.y, 
-			       {point: window.point});
+	this.addDataToFragment(
+	    window.point.x,
+	    window.point.y,
+	    {point: window.point});
+
+}
+
+FrameRenderer.prototype.renderLine = function(line){
+    var that = this;
+    return line.reduce(function(stringAcc, windowSegment){
+	    return stringAcc +
+	        nSpaces((windowSegment.column - stringAcc.length)) + 
+		that.renderSegment(windowSegment);
+    }, "");
+}
+
+/*
+ Render the segment
+ @param {object} segment
+ @return {string} the string representation of the segment
+ */
+FrameRenderer.prototype.renderSegment = function(segment){
+    /*
+     Point (cursor) needs a span to be visible.
+     Alter string of the segment containing the point (if there is one)
+     to add the span
+     */
+    if(!segment.point)
+	return segment.text.replace(/ /g, "&nbsp;");
+
+    var x = segment.point.x;
+    //do not check x, y in the segment
+    var renderedLine =  [segment.text.slice(0, x), 
+			 '<span class="cursor">' + 
+			 segment.text[x].replace(/ /g, "&nbsp;")  
+			 + '</span>', 
+			 segment.text.slice(x+1, segment.text.length)].join('');
+    return renderedLine;
 
 }
 
 FrameRenderer.prototype.render = function(){
-    function nSpaces(n){
-	//+ 1 because join inserts between
-	return Array(n + 1).join(" ");
-    }
-    /*
-     Render the segment
-     @param {object} segment
-     @return {string} the string representation of the segment
-    */
-    function renderSegment(segment){
-	/*
-	 Point (cursor) needs a span to be visible.
-	 Alter string of the segment containing the point (if there is one)
-	 to add the span
-	 */
-	if(!segment.point)
-	    return segment.text.replace(/ /g, "&nbsp;");
-	var x = segment.point.x;
-	//do not check x, y in the segment
-	var renderedLine =  [segment.text.slice(0, x), 
-		'<span class="cursor">' + 
-		  segment.text[x].replace(/ /g, "&nbsp;")  
-                  + '</span>', 
-		  segment.text.slice(x+1, segment.text.length)].join('');
-	return renderedLine;
-    }
     var result = [];
     for(var i = 0;i < this.height;i++){
-	result.push(this.getLine(i).reduce(function(stringAcc, windowSegment){
-	    return stringAcc +
-	        nSpaces((windowSegment.column - stringAcc.length)) + 
-		renderSegment(windowSegment);
-	}, ""));
+	result.push(this.renderLine(this.getLine(i)));
     }
     return result.join('<br>\n');
 }
 
-var tmp;
 function displayScreen(displayData){
-    terminal = $('.terminal-output');
+    var terminal = $('.terminal-output');
     terminal.empty();
     $('.terminal').width(Math.ceil(displayData.width * char_size().width));
     //terminal.width(Math.ceil(displayData.width * char_size().width));
 
-    renderer = new FrameRenderer(displayData.width, displayData.height);
+    var renderer = new FrameRenderer(displayData.width, displayData.height);
     tmp = renderer;
     tmp2 = displayData;
     renderer.processData(displayData);
@@ -174,7 +182,7 @@ function displayScreen(displayData){
 }
 
 function serverMessage(msg){
-    displayData = JSON.parse(msg.data);
+    var displayData = JSON.parse(msg.data);
     displayScreen(displayData);    
     //$('.terminal-output').text(msg.data);
 }
