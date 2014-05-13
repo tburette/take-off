@@ -124,7 +124,7 @@ FrameRenderer.prototype.addWindow = function(window){
 
     lines.forEach(function(line, index){
 	var fragment = {column: window.left, text: line};
-	if(window.point && window.point.y == index){
+	if(window.point && window.point.y == index + window.top){
 	    fragment.point = window.point;
 	}
 	this.getLine(window.top + index).push(fragment);
