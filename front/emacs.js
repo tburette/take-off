@@ -15,6 +15,10 @@ function nSpaces(n){
     return Array(n + 1).join(" ");
 }
 
+function encodeSpaces(string){
+    return string.replace(/ /g, "&nbsp;");
+}
+
 /*
 In emacs:
 Frame = entire emacs window
@@ -36,13 +40,16 @@ function FrameRenderer(width, height){
     //each value is an array of fragments of buffers which together represent text at index i
     //fragment = {column:<column index> string:<string value>}
     this.lines = [];
+    //the poin of the selected window
+    //correspond to the one point visible in emacs
+    this.point = null;
 }
 
 FrameRenderer.prototype.getLine = function(index){
     if(index > this.height - 1){
 	var error = new RangeError(index + 
 			       " is outside valid lines (min 0, max " + 
-			       this.height-1 + ")");
+			       (this.height - 1) + ")");
         error.lineRequested = index;
 	throw error;
     }
@@ -95,44 +102,62 @@ FrameRenderer.prototype.addWindows = function(windows){
 }
 
 //TODO missing hscroll handling
-//TODO make sure lines don't expand past :bottom
 FrameRenderer.prototype.addWindow = function(window){
     //split. this excludes "\\n" (backslash n typed in a buffer)
-    var lines = window.text.split(/\n/g);
+    var lines = window.text.replace(/\t/g, nSpaces(window.tabWidth)).split(/\n/g);
     var windowWidth = window.right - window.left + 1;
     //split lines too big. Emulates wrap
     //the place at which line are split can vary
     //saw case where it is width (w/ gui) anohther width -1 (terminal)
     lines = $.map(lines, function(line){//map flattens
+	if(line == "") return line;
 	return line.split(
 	    //parenthesis to include match in results
-	    RegExp("(.{" + (windowWidth -2) + "})")
-	);//.filter(Boolean);//remove "" from the array. "" is falsey.
+	    RegExp("(.{" + (windowWidth - 1) + "})")
+	).filter(Boolean);//remove "" from the array. "" is falsey.
     });
 
+    //TODO make sure lines don't expand past :bottom
+    //Our algorithm to handle line too long (split, horizontal scroll) might
+    //not fit the one used by emacs. Make sure we don't have too many lines
+    lines = lines.splice(0, window.bottom - window.top + 1)
+
     lines.forEach(function(line, index){
+	var fragment = {column: window.left, text: line};
+	if(window.point && window.point.y == index){
+	    fragment.point = window.point;
+	}
+	this.getLine(window.top + index).push(fragment);
 	//TODO ordered insertion
-	this.getLine(window.top + index).push({column: window.left, text: line});
 	this.getLine(window.top + index).sort(function(a, b){
 	    return a.column - b.column
 	});
     }, this);
 
-    if(window.point)
-	this.addDataToFragment(
-	    window.point.x,
-	    window.point.y,
-	    {point: window.point});
+    //TODO add in the forEach
+    //! global vs local coordonates
+    // if(window.point)
+    // 	this.addDataToFragment(
+    // 	    window.point.x,
+    // 	    window.point.y,
+    // 	    {point: window.point});
 
 }
 
 FrameRenderer.prototype.renderLine = function(line){
     var that = this;
-    return line.reduce(function(stringAcc, windowSegment){
-	    return stringAcc +
-	        nSpaces((windowSegment.column - stringAcc.length)) + 
-		that.renderSegment(windowSegment);
-    }, "");
+    function reduceLine(acc, windowSegment){
+	var renderedSegment = that.renderSegment(windowSegment);
+	var newString = acc.rendered +
+	    encodeSpaces(nSpaces((windowSegment.column - acc.charCount))) + 
+	    renderedSegment;
+	return {rendered:newString, charCount:acc.charCount + windowSegment.text.length};
+    }
+    //accumulator is the rendered string + the number of chars in the rendered string
+    //must keep track of number of chars handled because
+    //one char in the source may be rendered with multiple chars. e.g.: ' ' => &nbsp;
+    var result = line.reduce(reduceLine, {rendered:"", charCount:0});
+    return result.rendered
 }
 
 /*
@@ -147,17 +172,18 @@ FrameRenderer.prototype.renderSegment = function(segment){
      to add the span
      */
     if(!segment.point)
-	return segment.text.replace(/ /g, "&nbsp;");
+	return encodeSpaces(segment.text)
 
     var x = segment.point.x;
-    //do not check x, y in the segment
-    var renderedLine =  [segment.text.slice(0, x), 
+    //does not check x validity in the segment, must have been correctly set
+    return [encodeSpaces(segment.text.slice(0, x)),
 			 '<span class="cursor">' + 
-			 segment.text[x].replace(/ /g, "&nbsp;")  
-			 + '</span>', 
-			 segment.text.slice(x+1, segment.text.length)].join('');
-    return renderedLine;
-
+			 encodeSpaces(segment.text[x]) +
+			 '</span>',
+			 encodeSpaces(
+			     segment.text.slice(
+				 x+1,
+				 segment.text.length))].join('');
 }
 
 FrameRenderer.prototype.render = function(){

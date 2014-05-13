@@ -62,21 +62,30 @@
   hashtable
 )
 
+(window-inside-edges)
+(pos-visible-in-window-p (window-point) nil t)
+
 (defun take-off-set-point-pos (window hashtable)
-  (let ((pointhash (make-hash-table)))
-    (puthash
-     :point
-     pointhash
-     hashtable)
+  (if (eq window (selected-window))
+   (let* ((pointhash (make-hash-table))
+	  (inside-edges (window-inside-edges))
+	  (left (car inside-edges))
+	  (top (cadr inside-edges))
+	  ;position of point relative to the window
+	  (pos-point-relative (pos-visible-in-window-p (window-point window) window t))
+	  ;compute x y of point in abolute (relative to frame)
+	  (x-point (+ left (car pos-point-relative)))
+	  (y-point (+ top (cadr pos-point-relative)))
+	  )
+     (puthash
+      :point
+      pointhash
+      hashtable)
 
-    (mapcar*;zip
-     (lambda (key val)
-       (puthash key val pointhash))
-     '(:x :y)
-     (pos-visible-in-window-p (window-point window) window t))
+     (puthash :x (car pos-point-relative) pointhash)
+     (puthash :y (cadr pos-point-relative) pointhash)
 
-    hashtable)
-  )
+  )))
 
 ;json encode : hashtable become js object
 (defun take-off-visible-data ()
@@ -90,6 +99,9 @@
   	   (let ((hash (make-hash-table)))
 	     (take-off-set-window-pos window hash)
 	     (take-off-set-point-pos window hash)
+	     (puthash :tabWidth
+		      tab-width
+		      hash)
 	     (puthash :text
 		 ;TODO window-end can be wrong
 		 ;https://github.com/rolandwalker/window-end-visible

@@ -2,3 +2,7 @@
     background-color: #aaa;
     color: #000;
 }
+
+.fragment {
+    display: inline-block;
+}
