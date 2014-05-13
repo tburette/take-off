@@ -38,11 +38,8 @@ function FrameRenderer(width, height){
     this.height = height;
     //index i = line i of frame
     //each value is an array of fragments of buffers which together represent text at index i
-    //fragment = {column:<column index> string:<string value>}
+    //fragment = one line of one window
     this.lines = [];
-    //the poin of the selected window
-    //correspond to the one point visible in emacs
-    this.point = null;
 }
 
 FrameRenderer.prototype.getLine = function(index){
@@ -70,8 +67,8 @@ FrameRenderer.prototype.getFragmentAt = function(x, y){
 	throw new RangeError("no line " + y);
     var result;
     if(this.lines[y].some(function(fragment){
-	if(fragment.column <= x && 
-	   x <= fragment.column + fragment.text.length - 1){
+	if(fragment.columnLeft <= x && 
+	   x <= fragment.columnLeft + fragment.text.length - 1){
 	    result = fragment;
 	    return true;
 	}
@@ -117,47 +114,41 @@ FrameRenderer.prototype.addWindow = function(window){
 	).filter(Boolean);//remove "" from the array. "" is falsey.
     });
 
-    //TODO make sure lines don't expand past :bottom
+    //make sure lines don't expand past :bottom
     //Our algorithm to handle line too long (split, horizontal scroll) might
     //not fit the one used by emacs. Make sure we don't have too many lines
     lines = lines.splice(0, window.bottom - window.top + 1)
 
     lines.forEach(function(line, index){
-	var fragment = {column: window.left, text: line};
+	var fragment = {columnLeft: window.left, 
+			columnRight: window.right, 
+			text: line};
 	if(window.point && window.point.y == index + window.top){
 	    fragment.point = window.point;
 	}
 	this.getLine(window.top + index).push(fragment);
 	//TODO ordered insertion
 	this.getLine(window.top + index).sort(function(a, b){
-	    return a.column - b.column
+	    return a.columnLeft - b.columnLeft
 	});
     }, this);
-
-    //TODO add in the forEach
-    //! global vs local coordonates
-    // if(window.point)
-    // 	this.addDataToFragment(
-    // 	    window.point.x,
-    // 	    window.point.y,
-    // 	    {point: window.point});
-
 }
 
-FrameRenderer.prototype.renderLine = function(line){
+FrameRenderer.prototype.renderLine = function(line, target){
     var that = this;
     function reduceLine(acc, windowSegment){
-	var renderedSegment = that.renderSegment(windowSegment);
-	var newString = acc.rendered +
-	    encodeSpaces(nSpaces((windowSegment.column - acc.charCount))) + 
-	    renderedSegment;
-	return {rendered:newString, charCount:acc.charCount + windowSegment.text.length};
+	target.append(
+	    encodeSpaces(nSpaces((windowSegment.columnLeft - acc.charCount))));
+	target.append(that.renderSegment(windowSegment));
+	return {charCount:acc.charCount + 
+		    windowSegment.text.length + 
+	            (windowSegment.columnLeft - acc.charCount)};
     }
     //accumulator is the rendered string + the number of chars in the rendered string
     //must keep track of number of chars handled because
     //one char in the source may be rendered with multiple chars. e.g.: ' ' => &nbsp;
-    var result = line.reduce(reduceLine, {rendered:"", charCount:0});
-    return result.rendered
+    var result = line.reduce(reduceLine, {charCount:0});
+    return target.append('<br>\n');
 }
 
 /*
@@ -166,32 +157,44 @@ FrameRenderer.prototype.renderLine = function(line){
  @return {string} the string representation of the segment
  */
 FrameRenderer.prototype.renderSegment = function(segment){
+    var span = $('<span>');
+    span.addClass('fragment');
+    span.css('max-width', 
+	     ""+(char_size().width * 
+		 (segment.columnRight - segment.columnLeft + 1)) + "px");
+    //debug columns
+    //var color = segment.columnLeft > 5? 'white' :'red';
+    //if(segment.columnLeft > 110) color = 'green';
+    //span.css('background-color', color);
+
     /*
      Point (cursor) needs a span to be visible.
      Alter string of the segment containing the point (if there is one)
      to add the span
      */
-    if(!segment.point)
-	return encodeSpaces(segment.text)
+    if(!segment.point){
+	span.append(encodeSpaces(segment.text));
+	return span;
+    }
 
     var x = segment.point.x;
     //does not check x validity in the segment, must have been correctly set
-    return [encodeSpaces(segment.text.slice(0, x)),
+    var content = $.parseHTML([encodeSpaces(segment.text.slice(0, x)),
 			 '<span class="cursor">' + 
 			 encodeSpaces(segment.text[x]) +
 			 '</span>',
 			 encodeSpaces(
 			     segment.text.slice(
 				 x+1,
-				 segment.text.length))].join('');
+				 segment.text.length))].join(''));
+    span.append(content)
+    return span;
 }
 
-FrameRenderer.prototype.render = function(){
-    var result = [];
+FrameRenderer.prototype.render = function(target){
     for(var i = 0;i < this.height;i++){
-	result.push(this.renderLine(this.getLine(i)));
+	this.renderLine(this.getLine(i), target);
     }
-    return result.join('<br>\n');
 }
 
 function displayScreen(displayData){
@@ -204,7 +207,7 @@ function displayScreen(displayData){
     tmp = renderer;
     tmp2 = displayData;
     renderer.processData(displayData);
-    terminal.append(renderer.render());
+    renderer.render(terminal);
 }
 
 function serverMessage(msg){

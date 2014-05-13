@@ -5,4 +5,6 @@
 
 .fragment {
     display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
 }
