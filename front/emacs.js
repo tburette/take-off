@@ -68,7 +68,7 @@ FrameRenderer.prototype.getFragmentAt = function(x, y){
 	return result;
     } else
 	throw new RangeError(
-	    "no fragment at column " + y + " for the line " + x);
+	    "no fragment at column " + x + " for the line " + y);
 }
 
 /*
@@ -124,12 +124,7 @@ FrameRenderer.prototype.addWindow = function(window){
 FrameRenderer.prototype.render = function(){
     function nSpaces(n){
 	//+ 1 because join inserts between
-	try{
 	return Array(n + 1).join(" ");
-	}catch(err){
-	    console.log(err);
-	    debugger;
-	}
     }
     /*
      Render the segment
