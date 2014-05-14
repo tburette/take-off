@@ -8,3 +8,11 @@
     white-space: nowrap;
     overflow: hidden;
 }
+
+.notconnected, .connected {
+    font-family: FreeMono, monospace;
+    color: #aaa;
+    background-color: #000;
+    font-size: 12px;
+    line-height: 14px;
+}

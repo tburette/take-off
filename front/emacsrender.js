@@ -18,6 +18,10 @@ function encodeSpaces(string){
     return string.replace(/ /g, "&nbsp;");
 }
 
+function htmlEncode(value){
+    return encodeSpaces($('<div />').text(value).html());
+}
+
 /*
 In emacs:
 Frame = entire emacs window
@@ -138,7 +142,7 @@ FrameRenderer.prototype.renderLine = function(line, target){
     var that = this;
     function reduceLine(acc, windowSegment){
 	target.append(
-	    encodeSpaces(nSpaces((windowSegment.columnLeft - acc.charCount))));
+	    htmlEncode(nSpaces((windowSegment.columnLeft - acc.charCount))));
 	target.append(that.renderSegment(windowSegment));
 	return {charCount:acc.charCount + 
 		    windowSegment.text.length + 
@@ -173,7 +177,7 @@ FrameRenderer.prototype.renderSegment = function(segment){
      to add the span
      */
     if(!segment.point){
-	span.append(encodeSpaces(segment.text));
+	span.append(htmlEncode(segment.text));
 	return span;
     }
 
@@ -186,11 +190,11 @@ FrameRenderer.prototype.renderSegment = function(segment){
     var selectedChar = (segment.text[x])? segment.text[x] : " ";
 
     //does not check x validity in the segment, must have been correctly set
-    var content = $.parseHTML([encodeSpaces(segment.text.slice(0, x)),
+    var content = $.parseHTML([htmlEncode(segment.text.slice(0, x)),
 			 '<span class="cursor">' + 
-			 encodeSpaces(selectedChar) +
+			 htmlEncode(selectedChar) +
 			 '</span>',
-			 encodeSpaces(
+			 htmlEncode(
 			     segment.text.slice(
 				 x+1,
 				 segment.text.length))].join(''));

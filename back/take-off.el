@@ -17,6 +17,8 @@
       ))
 
 (defun take-off-web-socket-receive (proc string)
+  (message "!!!%s"string)
+  (execute-kbd-macro (kbd string))
   (process-send-string proc
     (ws-web-socket-frame (take-off-visible-data) )))
 	   
@@ -177,3 +179,4 @@ window-end
 
 
 
+(execute-kbd-macro (kbd "C-g"))

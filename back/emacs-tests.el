@@ -110,3 +110,13 @@
 ;popup menu
 
 ;popup dialogs
+
+
+;keys
+(execute-kbd-macro (kbd "M-g"))
+(execute-kbd-macro (kbd "M-g 2"))
+
+;C-x C-k C-e to view the previously defined macro
+;C-x C-k l   to view the the previous keystrokes
+;48.3.6 Rebinding Keys in Your Init File
+;
