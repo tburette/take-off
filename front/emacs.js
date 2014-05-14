@@ -178,15 +178,17 @@ FrameRenderer.prototype.renderSegment = function(segment){
     }
 
     var x = segment.point.x;
-    //Because our renderer doesn't match exactly emacs,
-    //there might not be a character at text[x].
-    //TODO Do no throw when there is no character at point (txt[x])
-    //log instead.
+    //if no character at point : add one space character and make it selected
+    //The position where emacs tells us the point is might not exist:
+    //-cursor is at end of line, after the last character
+    //-our renderer doesn't match exactly emacs,
+    // there might not be a character at text[x].
+    var selectedChar = (segment.text[x])? segment.text[x] : " ";
 
     //does not check x validity in the segment, must have been correctly set
     var content = $.parseHTML([encodeSpaces(segment.text.slice(0, x)),
 			 '<span class="cursor">' + 
-			 encodeSpaces(segment.text[x]) +
+			 encodeSpaces(selectedChar) +
 			 '</span>',
 			 encodeSpaces(
 			     segment.text.slice(
