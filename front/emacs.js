@@ -1,12 +1,11 @@
 function char_size() {
-    var temp = $('<div class="terminal"><div class="cmd"><span>&nbsp;' +
-                 '</span></div></div>').appendTo('body');
-    var span = temp.find('span');
+    var span = $('<span>&nbsp;' +
+                 '</span>').appendTo($('.terminal-output'));
     var result = {
         width: span.width(),
         height: span.outerHeight()
     };
-    temp.remove();
+    span.remove();
     return result;
 }
 
@@ -31,6 +30,7 @@ E.g. doesn't handle:
 * overlay
 * display table
 * color
+* ...
 
 */
 function FrameRenderer(width, height){
@@ -178,6 +178,11 @@ FrameRenderer.prototype.renderSegment = function(segment){
     }
 
     var x = segment.point.x;
+    //Because our renderer doesn't match exactly emacs,
+    //there might not be a character at text[x].
+    //TODO Do no throw when there is no character at point (txt[x])
+    //log instead.
+
     //does not check x validity in the segment, must have been correctly set
     var content = $.parseHTML([encodeSpaces(segment.text.slice(0, x)),
 			 '<span class="cursor">' + 
