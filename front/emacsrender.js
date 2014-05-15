@@ -167,8 +167,8 @@ FrameRenderer.prototype.renderSegment = function(segment){
 	     ""+(char_size().width * 
 		 (segment.columnRight - segment.columnLeft + 1)) + "px");
     //debug columns
-    //var color = segment.columnLeft > 5? 'white' :'red';
-    //if(segment.columnLeft > 110) color = 'green';
+    var color = segment.columnLeft > 5? 'white' :'red';
+    if(segment.columnLeft > 110) color = 'green';
     //span.css('background-color', color);
 
     /*
@@ -215,8 +215,6 @@ function displayScreen(displayData){
     //terminal.width(Math.ceil(displayData.width * char_size().width));
 
     var renderer = new FrameRenderer(displayData.width, displayData.height);
-    tmp = renderer;
-    tmp2 = displayData;
     renderer.processData(displayData);
     renderer.render(terminal);
 }

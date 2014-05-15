@@ -23,7 +23,7 @@ function connect(){
 	ws.onopen = null;
 	ws.onclose = null;
     }
-    var emacsURL = 'localhost:8000/socket';
+    var emacsURL = '192.168.1.24:8000/socket';
     console.log("Trying to connect to " + emacsURL);
     ws = new WebSocket('ws://' + emacsURL);
     ws.onopen = openedConnection;
