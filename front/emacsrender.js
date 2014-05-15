@@ -118,8 +118,10 @@ FrameRenderer.prototype.addWindow = function(window){
 	).filter(Boolean);//remove "" from the array. "" is falsey.
     });
 
+    lines[window.bottom - window.top] = window.modeLine;
+
     //make sure lines don't expand past :bottom
-    //Our algorithm to handle line too long (split, horizontal scroll) might
+    //Our rendering algorithm (line split, horizontal scroll,...) might
     //not fit the one used by emacs. Make sure we don't have too many lines
     lines = lines.splice(0, window.bottom - window.top + 1)
 

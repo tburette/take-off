@@ -70,6 +70,9 @@
 		(window-start window) 
 		(window-end window))
 	       hash)
+	     (puthash :modeLine
+	       (message (format-mode-line mode-line-format))
+	       hash)
 	     hash
 	     )))
        (window-list))

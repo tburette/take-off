@@ -1,5 +1,5 @@
 function serverMessage(msg){
-    var displayData = JSON.parse(msg.data);
+    displayData = JSON.parse(msg.data);
     displayScreen(displayData);    
  }
 
