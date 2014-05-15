@@ -194,7 +194,6 @@ function onTimerElapsed(){
 
 function onKeyDown(e){
     var key = convertKey(e);
-    console.log('d' + key);
     if(key.toUpperCase() == "SHIFT")
 	//shift is not a special key nor a key to send to emacse
 	//nothing to do
@@ -207,9 +206,10 @@ function onKeyDown(e){
 	return;
     }
 
-    if(!active_modifier && !timer && !key_buffer)
+    if(!active_modifier && !timer && !key_buffer){
+	console.log(key);
 	ws.send(convertToEmacsKey(key));
-    else{
+    }else{
 	if(!key_buffer) key_buffer = [];
 	key_buffer.push(convertToEmacsKey(key, active_modifier));
 	startTimer();
@@ -218,7 +218,6 @@ function onKeyDown(e){
 
 function onKeyUp(e){
     var key = convertKey(e);
-    console.log('u' + key);
     e.preventDefault(true);
     
     if(key == active_modifier)
