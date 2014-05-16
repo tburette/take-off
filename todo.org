@@ -1,8 +1,17 @@
 * buttons
-* test on ipod
+** add button in overlay
+** layout button in page
+** remove buttons
+** preset layout (navigate)
+* layout ok for ipad/iphone
+* punlic release
+** make a module (provide, ip/port, defvar, comment, elpa)
+* blue color/theme/website/release
+
 * hook/events to update web client when needed
+* gesture
 * Minibuffer
-* Modline
+
 * buffer rendering issue
 **** invisible text
 **** hscroll
@@ -12,4 +21,10 @@
 *** glyph matrix?
 * display arbitrary frame/window
 * mouse click
-* gesture
+* C-M- shortcuts
+* Bugs
+** if point at end of line, column to the right is shifted one character right
+** wraps lines at wrong place : vary between emacs (terminal vs gui) and windows
+** point invisible in org mode
+** keys sent by the webpage might be wrong
+   assumes US keyboard, don't know which keys are bound to C- and M-
