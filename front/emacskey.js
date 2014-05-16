@@ -229,7 +229,7 @@ function onBlur(){
 }
 
 function initkey(){
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
-    document.addEventListener('blur', onBlur);
+    $('body').on('keydown', onKeyDown);
+    $('body').on('keyup', onKeyUp);
+    $('body').on('blur', onBlur);
 }

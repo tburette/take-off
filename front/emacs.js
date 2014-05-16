@@ -1,8 +1,12 @@
+function addButton(){
+    var buttonString = $('');
+    //$('textarea[name=buttonText]')
+}
+
 function serverMessage(msg){
     displayData = JSON.parse(msg.data);
     displayScreen(displayData);    
  }
-
 
 var ws;
 function openedConnection(){
@@ -34,4 +38,7 @@ function connect(){
 $(function(){
     initkey();
     setupConnection();
+
+$('button[name=addButton]').on('click', addButton);
+
 });
