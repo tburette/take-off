@@ -118,7 +118,7 @@ FrameRenderer.prototype.addWindow = function(window){
 	).filter(Boolean);//remove "" from the array. "" is falsey.
     });
 
-    lines[window.bottom - window.top] = window.modeLine;
+    lines[window.bottom - window.top] = window.modeLine.slice(0, windowWidth - 1);
 
     //make sure lines don't expand past :bottom
     //Our rendering algorithm (line split, horizontal scroll,...) might
@@ -146,9 +146,10 @@ FrameRenderer.prototype.renderLine = function(line, target){
 	target.append(
 	    htmlEncode(nSpaces((windowSegment.columnLeft - acc.charCount))));
 	target.append(that.renderSegment(windowSegment));
-	return {charCount:acc.charCount + 
-		    windowSegment.text.length + 
-	            (windowSegment.columnLeft - acc.charCount)};
+	return {charCount:
+		    acc.charCount + //previously added
+		    windowSegment.text.length + //length of actual text in this segment
+	            (windowSegment.columnLeft - acc.charCount)}; //spaces added
     }
     //accumulator is the rendered string + the number of chars in the rendered string
     //must keep track of number of chars handled because
@@ -169,10 +170,10 @@ FrameRenderer.prototype.renderSegment = function(segment){
 	     ""+(char_size().width * 
 		 (segment.columnRight - segment.columnLeft + 1)) + "px");
     //debug columns
-    var color = segment.columnLeft > 5? 'white' :'red';
-    if(segment.columnLeft > 110) color = 'green';
+    //var color = segment.columnLeft > 5? 'white' :'red';
+    //if(segment.columnLeft > 110) color = 'green';
     //span.css('background-color', color);
-
+    
     /*
      Point (cursor) needs a span to be visible.
      Alter string of the segment containing the point (if there is one)
