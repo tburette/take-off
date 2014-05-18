@@ -10,7 +10,7 @@
 * blue color/theme/website/release
 
 * hook/events to update web client when needed
-** DONE update when buffer change
+** update when buffer change
 ** update when point change?
 * gesture
 * Minibuffer
@@ -25,6 +25,7 @@
 *** glyph matrix?
 * display arbitrary frame/window
 * mouse click
+  determine where the click is and set the point there
 * C-M- shortcuts
 
 * Bugs

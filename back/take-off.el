@@ -151,7 +151,7 @@
 (defun take-off-change-hook-function (beginning end length)
   (if take-off-web-socket-process
       (process-send-string take-off-web-socket-process
-			   (ws-web-socket-frame (take-off-visible-data) )))
+  			   (ws-web-socket-frame (take-off-visible-data) )))
 )
 	   
 (defun take-off-web-socket-connect (request)
@@ -164,7 +164,11 @@ Assumes request is a web socket connection request."
 	(prog1 
 	  :keep-alive;prevent closing the connection immediatly after request
 	  (setq take-off-web-socket-process process)
-	  (add-hook 'after-change-functions 'take-off-change-hook-function t))
+	  ;the hook is called after each character insertion.
+	  ;as-is the client is flooded with data
+	  ;shoud buffer before sending
+	  ;(add-hook 'after-change-functions 'take-off-change-hook-function t)
+	)
         (ws-response-header process 501 '("Content-Type" . "text/html"))
 	(ws-send process "Unable to create socket"))))
 
@@ -213,3 +217,6 @@ Assumes request is a web socket connection request."
   (print 1))
 
 (add-hook 'after-change-functions 'test-hook t)
+
+(provide 'take-off)
+

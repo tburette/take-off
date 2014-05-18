@@ -1,6 +1,7 @@
 function serverMessage(msg){
+    console.log('serverMessage' + msg.data);
     displayData = JSON.parse(msg.data);
-    displayScreen(displayData);    
+    displayScreen(displayData);
  }
 
 var ws;
@@ -50,7 +51,7 @@ function buttonsMayHaveChanged(){
 }
 
 function closeAddButtonDialog(){
-    addKeyEvents();
+    enableInputOverride();
     $('#buttonCode').val('');
     $('#buttonName').val('');
     $('#newButtonDialog').hide();
@@ -110,7 +111,7 @@ function addMultipleWindowsButtonSet(){
 }
 
 function openRemoveButtonDialog(){
-    removeKeyEvents();
+    disableInputOverride();
     var buttonList = $('#removeButtonDialog div.buttonList');
     $('#removeButtonDialog .modal-body').append(buttonList);
     buttonList.append(
@@ -129,7 +130,7 @@ function openRemoveButtonDialog(){
 }
 
 function closeRemoveButtonDialog(){
-    addKeyEvents();
+    enableInputOverride();
     $('#removeButtonDialog .buttonList').empty();
     $('#removeButtonDialog').hide();
 }
@@ -141,6 +142,19 @@ function removeButtons(){
     buttonsMayHaveChanged();
 }
 
+/*
+ Normal page interaction are de-activated to pass interaction data directly
+ To emacs. This disable interaction stealing and give it back to the browser
+*/
+function disableInputOverride(){
+    removeKeyEvents();
+    $('body').swipe('disable');
+}
+
+function enableInputOverride(){
+    addKeyEvents();
+    $('body').swipe('enable');
+}
 
 $(function(){
     initkey();
@@ -149,7 +163,7 @@ $(function(){
     //TODO refactor dialogs to automate opening/closing/... 
     //and reduce duplication
     $('button[name=openButtonDialog]').on('click', function(){
-	removeKeyEvents();
+	disableInputOverride();
 	$('#newButtonDialog').show();
 	$('#newButtonDialog #buttonCode').focus();
 	
@@ -183,5 +197,36 @@ $(function(){
     $('#removeButtonDialog button[name=buttonRemove]').on('click', function(){
 	removeButtons();
 	closeRemoveButtonDialog();
+    });
+
+    //jquery.touchSwipe
+    $('body').swipe({
+	swipeUp:function(){
+	    execute("(scroll-up-command)");
+	},
+	swipeDown:function(){
+	    execute("(scroll-down-command)");
+	},
+	swipeLeft:function(){
+	    execute("(previous-buffer)");
+	},
+	swipeRight:function(){
+	    execute("(next-buffer)");
+	},
+	tap:function(event, target) {
+	    execute("(set-mark-command nil)");
+        },
+        doubleTap:function(event, target) {
+	    execute("(keyboard-quit)");
+        },
+        longTap:function(event, target) {
+	    execute("(indent-region)");
+        },
+	pinchIn:function(event, direction, distance, duration, fingerCount, pinchZoom){
+
+        },
+        pinchOut:function(event, direction, distance, duration, fingerCount, pinchZoom){
+
+        },
     });
 });
