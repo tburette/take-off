@@ -10,6 +10,8 @@
 * blue color/theme/website/release
 
 * hook/events to update web client when needed
+** DONE update when buffer change
+** update when point change?
 * gesture
 * Minibuffer
 

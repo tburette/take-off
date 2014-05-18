@@ -148,6 +148,11 @@
   )
 )
 
+(defun take-off-change-hook-function (beginning end length)
+  (if take-off-web-socket-process
+      (process-send-string take-off-web-socket-process
+			   (ws-web-socket-frame (take-off-visible-data) )))
+)
 	   
 (defun take-off-web-socket-connect (request)
   "Open a web socket connection
@@ -158,7 +163,8 @@ Assumes request is a web socket connection request."
 	 'take-off-web-socket-receive)
 	(prog1 
 	  :keep-alive;prevent closing the connection immediatly after request
-	  (setq take-off-connection))
+	  (setq take-off-web-socket-process process)
+	  (add-hook 'after-change-functions 'take-off-change-hook-function t))
         (ws-response-header process 501 '("Content-Type" . "text/html"))
 	(ws-send process "Unable to create socket"))))
 
@@ -194,8 +200,16 @@ Assumes request is a web socket connection request."
   (when take-off-server
   (ws-stop take-off-server)
   (setq take-off-server nil)
+  (if take-off-web-socket-process
+      (remove-hook 'after-change-functions 'take-off-change-hook-function))
   (setq take-off-web-socket-process nil)))
 
 (take-off-start 8000)
 
 (take-off-stop)
+
+
+(defun test-hook (beginning end old-length)
+  (print 1))
+
+(add-hook 'after-change-functions 'test-hook t)
