@@ -63,17 +63,22 @@ function addButton(){
 	});
 	$('.buttons').append(newButton);
     }
-
-    closeAddButtonDialog();
 }
 
 function openRemoveButtonDialog(){
     removeKeyEvents();
-    $('#removeButtonDialog .modal-body').append(
+    var buttonList = $('#removeButtonDialog div.buttonList');
+    $('#removeButtonDialog .modal-body').append(buttonList);
+    buttonList.append(
 	$('.buttons button').map(function(){
+	    var checkDiv = $('<div class="form-group">');
+	    var checkLabel = $('<label>');
 	    var checkbox = $('<input type="checkbox"></input>');
-	    checkbox.value($(this).text());
-	    return checkbox[0];
+	    checkbox.data('divButton', $(this));
+	    checkLabel.append(checkbox[0]);
+	    checkLabel.append($(this).text());
+	    checkDiv.append(checkLabel[0]);
+	    return checkDiv[0];
 	})
     );
     $('#removeButtonDialog').show();
@@ -81,7 +86,14 @@ function openRemoveButtonDialog(){
 
 function closeRemoveButtonDialog(){
     addKeyEvents();
+    $('#removeButtonDialog .buttonList').empty();
     $('#removeButtonDialog').hide();
+}
+
+function removeButtons(){
+    $('#removeButtonDialog .buttonList :checkbox:checked').each(function(){
+	$(this).data('divButton').remove();
+    });
 }
 
 
@@ -89,7 +101,8 @@ $(function(){
     initkey();
     setupConnection();
 
-    //TODO refactor dialog to automate opening/closing/...
+    //TODO refactor dialogs to automate opening/closing/... 
+    //and reduce duplication
     $('button[name=openButtonDialog]').on('click', function(){
 	removeKeyEvents();
 	$('#newButtonDialog').show();
@@ -99,7 +112,10 @@ $(function(){
     $('#newButtonDialogClose').on('click', function(){	
 	closeAddButtonDialog();
     });
-    $('button[name=buttonAdd]').on('click', addButton);
+    $('button[name=buttonAdd]').on('click', function(){
+	addButton();
+	closeAddButtonDialog();
+    });
 
 
     $('button[name=openRemoveButtonDialog]').on('click', function(){
@@ -108,5 +124,8 @@ $(function(){
     $('#removeButtonDialogClose').on('click', function(){	
 	closeRemoveButtonDialog();
     });
-    
+    $('#removeButtonDialog button[name=buttonRemove]').on('click', function(){
+	removeButtons();
+	closeRemoveButtonDialog();
+    });
 });
