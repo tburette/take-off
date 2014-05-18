@@ -1,9 +1,50 @@
+;;; take-off.el --- Remote Emacs Web Access
+
+;; Author: Thomas Burette <burettethomas@gmail.com>
+;; Maintainer: Thomas Burette <burettethomas@gmail.com>
+;; Version: 0.0.1
+;; Package-Requires: ((emacs "24.3") (web-server "0.1.0"))
+;; URL: https://github.com/tburette/take-off
+
+;; This file is NOT part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;;; Commentary:
+;;
+;; A remote web access to emacs.
+;;
+;; Starts a web server allowing access to emacs through a webpage.
+;; There is no security in this module at all! If you plan to use this
+;; on a non local, secure network you must secure the access yourself.
+;; To secure you can use an SSH tunnel, an SSH SOCKS proxy or a reverse
+;;
+;; If the error 'Caught Error: (void-function symbol-macrolet)' appears
+;; you need to execute '(require 'cl)' before using take-off. This issue
+;; is fixed in emacs 24.4.
+;;
+;; The following starts the web-server
+;;
+;; (take-off-start <port>)
+;;
+;; To access it direct a browser at : http://<address>:<port>/emacs.html
+
+
 (require 'cl)
 (require 'json)
 
 (defvar take-off-docroot (expand-file-name default-directory))
 
 (defun take-off-static-files (request)
+  "Handler that serves all the static files"
       (with-slots (process headers) request
 	(let ((serve-path (expand-file-name (concat take-off-docroot "../front")))
 	      (path (substring (cdr (assoc :GET headers)) 1)))
@@ -27,6 +68,7 @@
 )
 
 (defun take-off-set-point-pos (window hashtable)
+  "Add window's point location to hashtable if window is the current window"
   (if (eq window (selected-window))
    (let* ((pointhash (make-hash-table))
 	  (inside-edges (window-inside-edges))
@@ -50,6 +92,7 @@
 
 ;json encode : hashtable become js object
 (defun take-off-visible-data ()
+  "Return a json value representing the current visible state of emacs"
   (let ((windows-data (make-hash-table)))
     (puthash :width (frame-width) windows-data)
     (puthash :height (frame-height) windows-data)
@@ -80,8 +123,8 @@
     (json-encode windows-data))
   )
 
-;missing error handling
 (defun take-off-web-socket-receive (proc string)
+  "Handle web-socket requests sent by the browser agent"
   (let* ((json (condition-case nil
 		   (json-read-from-string string)
 		 (end-of file nil)
@@ -101,6 +144,8 @@
 
 	   
 (defun take-off-web-socket-connect (request)
+  "Open a web socket connection
+Assumes request is a web socket connection request."
   (with-slots (process headers) request
     (if (ws-web-socket-connect 
 	 request
@@ -114,20 +159,32 @@
 (defun take-off-is-socket-request (request)
   (string-prefix-p "/socket" (cdr (assoc :GET (oref request headers)))))
 
-(ws-start
- '(
-   (take-off-is-socket-request .
-    take-off-web-socket-connect)
-   ((:GET . ".*") . 
-    take-off-static-files)
-   ((lambda (request) t).
-    (lambda (request)
-      (with-slots (process headers) request
-	(ws-response-header process 200 '("Content-Type" . "text/plain"))
-	(process-send-string process "Default handler\n")))
-    )
-   )
+;;;###autoload
+(defun take-off-start (port)
+  "Start a web server that allows remote web access to emacs."
+  (interactive)
+  (ws-start
+   '(
+     (take-off-is-socket-request .
+				 take-off-web-socket-connect)
+     ((:GET . ".*") .  take-off-static-files)
+     ((lambda (request) t).
+      (lambda (request)
+	(with-slots (process headers) request
+	  (ws-response-header process 200 '("Content-Type" . "text/plain"))
+	  (process-send-string process "Default handler\n")))
+      )
+     )
 
- 8000)
+   port))
+
+;;;###autoload
+(defun take-off-stop
+  "Stop the web server."
+  (interactive)
+  ;BUG  we should stop only our server
+  (ws-stop-all))
+
+(take-off-start 8000)
 
 (ws-stop-all)
