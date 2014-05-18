@@ -41,6 +41,12 @@
 (require 'cl)
 (require 'json)
 
+(defvar take-off-web-socket-process nil
+  "web-server process of the web socket.")
+
+(defvar take-off-server nil
+  "Web server")
+
 (defvar take-off-docroot (expand-file-name default-directory))
 
 (defun take-off-static-files (request)
@@ -163,28 +169,33 @@ Assumes request is a web socket connection request."
 (defun take-off-start (port)
   "Start a web server that allows remote web access to emacs."
   (interactive)
-  (ws-start
-   '(
-     (take-off-is-socket-request .
-				 take-off-web-socket-connect)
-     ((:GET . ".*") .  take-off-static-files)
-     ((lambda (request) t).
-      (lambda (request)
-	(with-slots (process headers) request
-	  (ws-response-header process 200 '("Content-Type" . "text/plain"))
-	  (process-send-string process "Default handler\n")))
-      )
-     )
+  (setq take-off-server
+	(ws-start
+	 '(
+	   (take-off-is-socket-request .
+				       take-off-web-socket-connect)
+	   ((:GET . ".*") .  take-off-static-files)
+	   ((lambda (request) t).
+	    (lambda (request)
+	      (with-slots (process headers) request
+		(ws-response-header process
+				    200
+				    '("Content-Type" . "text/plain"))
+		(process-send-string process "Default handler\n")))
+	    )
+	   )
 
-   port))
+	 port)))
 
 ;;;###autoload
-(defun take-off-stop
+(defun take-off-stop ()
   "Stop the web server."
   (interactive)
-  ;BUG  we should stop only our server
-  (ws-stop-all))
+  (when take-off-server
+  (ws-stop take-off-server)
+  (setq take-off-server nil)
+  (setq take-off-web-socket-process nil)))
 
 (take-off-start 8000)
 
-(ws-stop-all)
+(take-off-stop)

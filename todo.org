@@ -31,5 +31,4 @@
 ** point invisible in org mode
 ** keys sent by the webpage might be wrong
    assumes US keyboard, don't know which keys are bound to C- and M-
-** take-off stop
-   we stop all web servers. We must stop only ours
+
