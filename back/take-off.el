@@ -31,15 +31,21 @@
 ;; you need to execute '(require 'cl)' before using take-off. This issue
 ;; is fixed in emacs 24.4.
 ;;
-;; The following starts the web-server
+;; The following starts the web-server:
 ;;
 ;; (take-off-start <port>)
+;;
+;; To stop the server:
+;;
+;; (take-off-stop)
+;;
 ;;
 ;; To access it direct a browser at : http://<address>:<port>/emacs.html
 
 
 (require 'cl)
 (require 'json)
+(require 'web-server)
 
 (defvar take-off-web-socket-process nil
   "web-server process of the web socket.")
@@ -208,15 +214,6 @@ Assumes request is a web socket connection request."
       (remove-hook 'after-change-functions 'take-off-change-hook-function))
   (setq take-off-web-socket-process nil)))
 
-(take-off-start 8000)
-
-(take-off-stop)
-
-
-(defun test-hook (beginning end old-length)
-  (print 1))
-
-(add-hook 'after-change-functions 'test-hook t)
 
 (provide 'take-off)
 

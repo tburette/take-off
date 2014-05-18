@@ -1,5 +1,4 @@
 function serverMessage(msg){
-    console.log('serverMessage' + msg.data);
     displayData = JSON.parse(msg.data);
     displayScreen(displayData);
  }
@@ -213,20 +212,26 @@ $(function(){
 	swipeRight:function(){
 	    execute("(next-buffer)");
 	},
-	tap:function(event, target) {
-	    execute("(set-mark-command nil)");
-        },
+
+	/*
+	 don't work so well
+
+	 tap:function(event, target) {},
         doubleTap:function(event, target) {
-	    execute("(keyboard-quit)");
+	    console.log("double");
+	    //split vertically
+	    execute("(split-window nil nil t)");
         },
         longTap:function(event, target) {
-	    execute("(indent-region)");
+	    console.log("long");
+	    execute("(delete-window)");
         },
 	pinchIn:function(event, direction, distance, duration, fingerCount, pinchZoom){
-
+	    execute("(shrink-window-Horizontally 5)");
         },
         pinchOut:function(event, direction, distance, duration, fingerCount, pinchZoom){
-
+	    execute("(enlarge-window-horizontally 5)");
         },
+	 */
     });
 });
