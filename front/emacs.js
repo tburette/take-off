@@ -37,7 +37,7 @@ function execute(code){
 
 //-----------------------------------------------------------------------------
 //Code for the dynamic part of the page below
-
+//Typical messy intertwined jquery code. Would be nice o user angular/ember
 
 /*
  Called when there has potentially been a change in the list of buttons
