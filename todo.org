@@ -1,6 +1,6 @@
 * buttons
 ** DONE add button in overlay
-** [#B] default set of buttons (to navigate in emacs)
+** DONE default set of buttons (to navigate in emacs)
 ** DONE add button in page
 ** DONE remove buttons
 *** DONE deactivate if no buttons		

@@ -33,7 +33,7 @@
     font-family: FreeMono, monospace;
 }
 
-button[name=defaultButtonSetAdd] {
+#newButtonDialog button.button-set {
     float: left;
 }
 

@@ -56,12 +56,10 @@ function closeAddButtonDialog(){
     $('#newButtonDialog').hide();
 }
 
-function addButton(){
-    var code = $('#buttonCode').val();
+function addButton(name, code){
     if(code.trim()){
 	var newButton = $('<button class="btn btn-primary btn-lg"></button>');
 	newButton[0].code = code;
-	var name = $('#buttonName').val();
 	if(!name || !name.trim()){
 	    var match = code.match(/^[\s()]*([^\t\r\n\f()]+)/);
 	    if(match)
@@ -77,8 +75,38 @@ function addButton(){
 	    execute(this.code);
 	});
 	$('.buttons').append(newButton);
-	buttonsMayHaveChanged();
     }
+}
+
+function addButtons(buttons){
+    $.each(buttons, function(){
+	addButton(this.name, this.code);
+    });
+}
+
+function addNavigationButtonSet(){
+    var navigationButtons = [
+	{name: "Recenter", code: "(recenter-top-bottom)"},
+	//scroll-down = scroll text down = cursor up
+	{name: "Page up", code: "(scroll-down-command)"},
+	{name: "Page down", code: "(scroll-up-command)"},
+	{name: "First line", code: "(beginning-of-buffer)"},
+	{name: "Last line", code: "(end-of-buffer)"},
+	{name: "Previous buffer", code: "(previous-buffer)"},
+	{name: "Next buffer", code: "(next-buffer)"},
+    ];
+    addButtons(navigationButtons);
+}
+
+function addMultipleWindowsButtonSet(){
+    var navigationButtons = [
+	{name: "Previous window", code: "(other-window -1)"},
+	{name: "Next window", code: "(other-window 1)"},
+	{name: "Split Horizontally", code: "(split-window)"},
+	{name: "Split Vertically", code: "(split-window nil nil t)"},
+	{name: "Close window", code: "(delete-window)"},
+    ];
+    addButtons(navigationButtons);
 }
 
 function openRemoveButtonDialog(){
@@ -130,7 +158,18 @@ $(function(){
 	closeAddButtonDialog();
     });
     $('button[name=buttonAdd]').on('click', function(){
-	addButton();
+	addButton($('#buttonName').val(), $('#buttonCode').val());
+	buttonsMayHaveChanged();
+	closeAddButtonDialog();
+    });
+    $('button[name=navigationButtonSetAdd]').on('click', function(){
+	addNavigationButtonSet();
+	buttonsMayHaveChanged();
+	closeAddButtonDialog();
+    });
+    $('button[name=multipleWindowsButtonSetAdd]').on('click', function(){
+	addMultipleWindowsButtonSet();
+	buttonsMayHaveChanged();
 	closeAddButtonDialog();
     });
 
