@@ -11,10 +11,34 @@
 
 }
 
-.notconnected, .connected {
+.not-connected, .connected {
     font-family: FreeMono, monospace;
     color: #aaa;
     background-color: #000;
     font-size: 12px;
     line-height: 14px;
 }
+
+
+
+.modal button.close {
+    opacity: 0.6;
+}
+
+.modal-content {
+    padding: 10px;
+}
+
+#buttonCode, #buttonName {
+    font-family: FreeMono, monospace;
+}
+
+button[name=navigationButtonsAdd] {
+    float: left;
+    display: none;
+}
+
+div.buttons * {
+    margin: 10px
+}
+

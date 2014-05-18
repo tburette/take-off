@@ -1,10 +1,11 @@
 * buttons
-** add button in overlay
-** layout button in page
+** DONE add button in overlay
+** DONE add button in page
+** [#B] preset layout (navigate)
 ** remove buttons
-** preset layout (navigate)
+*** deactivate if no buttons
 * layout ok for ipad/iphone
-* punlic release
+* public release
 ** make a module (provide, ip/port, defvar, comment, elpa)
 * blue color/theme/website/release
 
@@ -18,6 +19,7 @@
 **** wrap
 **** overlay
 **** display table
+**** selection
 *** glyph matrix?
 * display arbitrary frame/window
 * mouse click

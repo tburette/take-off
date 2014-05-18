@@ -60,7 +60,7 @@
   	   (let ((hash (make-hash-table)))
 	     (take-off-set-window-pos window hash)
 	     (take-off-set-point-pos window hash)
-	     (puthash :tabWidth
+			     (puthash :tabWidth
 		      tab-width
 		      hash)
 	     (puthash :text
@@ -71,19 +71,34 @@
 		(window-end window))
 	       hash)
 	     (puthash :modeLine
-	       (message (format-mode-line mode-line-format))
+	       (format-mode-line mode-line-format t window)
 	       hash)
 	     hash
 	     )))
        (window-list))
       windows-data)
     (json-encode windows-data))
+  )
+
+;missing error handling
+(defun take-off-web-socket-receive (proc string)
+  (let* ((json (condition-case nil
+		   (json-read-from-string string)
+		 (end-of file nil)
+		 ))
+	 (key (when (assoc 'key json) (cdr (assoc 'key json))))
+	 (code (when (assoc 'code json) (cdr (assoc 'code json)))))
+    (when key
+      (execute-kbd-macro (kbd key))
+    )
+    (when code
+      (eval-expression (read code))
+    )
+    (process-send-string proc
+			 (ws-web-socket-frame (take-off-visible-data) ))
+  )
 )
 
-(defun take-off-web-socket-receive (proc string)
-  (execute-kbd-macro (kbd string))
-  (process-send-string proc
-    (ws-web-socket-frame (take-off-visible-data) )))
 	   
 (defun take-off-web-socket-connect (request)
   (with-slots (process headers) request

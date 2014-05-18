@@ -187,7 +187,7 @@ function onTimerElapsed(){
     if(key_buffer){
 	//TODO send correct values
 	console.log(key_buffer.join(' '));
-	ws.send(key_buffer.join(' '));
+	sendKey(key_buffer.join(' '))
 	key_buffer = null;
     }
 }
@@ -208,7 +208,8 @@ function onKeyDown(e){
 
     if(!active_modifier && !timer && !key_buffer){
 	console.log(key);
-	ws.send(convertToEmacsKey(key));
+	sendKey(convertToEmacsKey(key));
+	;
     }else{
 	if(!key_buffer) key_buffer = [];
 	key_buffer.push(convertToEmacsKey(key, active_modifier));
@@ -228,8 +229,26 @@ function onBlur(){
     active_modifier = null;
 }
 
+var keyEvents = [
+    {name: 'keydown', handler: onKeyDown}, 
+    {name: 'keyup', handler: onKeyUp}, 
+    {name: 'blur', handler: onBlur}];
 function initkey(){
-    $('body').on('keydown', onKeyDown);
-    $('body').on('keyup', onKeyUp);
-    $('body').on('blur', onBlur);
+    addKeyEvents();
+}
+
+function addKeyEvents(){
+    keyEvents.forEach(function(event){
+	$('body').on(event.name, event.handler);
+    });
+}
+
+function removeKeyEvents(){
+    keyEvents.forEach(function(event){
+	$('body').off(event.name, event.handler);
+    });
+}
+
+function sendKey(keyString){
+    ws.send(JSON.stringify({key: keyString}));
 }

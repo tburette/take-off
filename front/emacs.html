@@ -3,24 +3,80 @@
   <head>
     <link href="jquery.terminal.css" rel="stylesheet"/> 
     <link href="emacs.css" rel="stylesheet"/>
+    <link href="bootstrap/bootstrap.css" rel="stylesheet"/>
     <script src="jquery-1.11.1.js"></script>
+    <script src="bootstrap/bootstrap.js"></script>
     <script src="emacsrender.js"></script>
     <script src="emacskey.js"></script>
     <script src="emacs.js"></script>
   </head>
   <body>
     <div class="terminal">
-      <div class="terminal-output">
+      <div class="terminal-output"></div>
+      <div class="not-connected">Not connected</div>
+      <div class="connected">Connected</div>
+    </div>
+    <button name="openButtonDialog" type="button" class="btn btn-default btn-lg">
+      Add command button
+    </button>
+    <button name="openRemoveButtonDialog" type = "button" class="btn btn-default btn-lg">
+      Remove Buttons
+    </button>
+
+    <div class="buttons">
+    </div>
+
+    <div id="newButtonDialog" class="modal">
+      <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="nodal-header">
+	    <button type="button" 
+		    id="newButtonDialogClose"
+		    class="close" 
+		    data-dismiss="modal">
+	      ×
+	    </button>
+            <h4 class="modal-title">Add New Button</h4>
+	  </div>
+	  <div class="modal-body">
+            <div class="form-group">
+              <label for="buttonCode">Code</label>
+    	    <textarea id="buttonCode" rows="5" class="form-control"></textarea>
+      	    </div>
+	    <div class="form-group">
+	      <label for="buttonName">Button Label</label>
+	      <input type="text" class="form-control" id="buttonName"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+	    <button name="navigationButtonsAdd" class="btn btn-default">
+	      Add navigation buttons
+	    </button>
+            <button name="buttonAdd" class="btn btn-primary">Add</button>
+	  </div>
+	</div>
       </div>
-    <div class="notconnected">Not connected</div>
-    <div class="connected">Connected</div>
     </div>
-    <button name="buttonDialog" type="button">Add command button</button>
-    <div class="dialogmodal addbutton">
-      <textarea name="buttonText" rows="10" cols="50"></textarea>
-      <br>
-      <button name="buttonAdd">Add</button>
-      <button name="buttonCancel">Cancel</button>
-    </div>
+
+    <div id="removeButtonDialog" class="modal">
+      <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="nodal-header">
+	    <button type="button" 
+		    id="removeButtonDialogClose"
+		    class="close" 
+		    data-dismiss="modal">
+	      ×
+	    </button>
+            <h4 class="modal-title">Remove Buttons</h4>
+	  </div>
+	  <div class="modal-body">
+          </div>
+          <div class="modal-footer">
+	    <button name="buttonRemove" class="btn btn-primary">Remove</button>
+	  </div>
+	</div>
+      </div>
+     </div>
   </body>
 </html>
