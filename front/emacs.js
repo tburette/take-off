@@ -34,6 +34,21 @@ function execute(code){
     JSON.stringify(ws.send(JSON.stringify({code: code})));
 }
 
+
+//-----------------------------------------------------------------------------
+//Code for the dynamic part of the page below
+
+
+/*
+ Called when there has potentially been a change in the list of buttons
+*/
+function buttonsMayHaveChanged(){
+    if($('.buttons *').length)
+	$('button[name=openRemoveButtonDialog]').removeClass('disabled');
+    else
+	$('button[name=openRemoveButtonDialog]').addClass('disabled');
+}
+
 function closeAddButtonDialog(){
     addKeyEvents();
     $('#buttonCode').val('');
@@ -62,6 +77,7 @@ function addButton(){
 	    execute(this.code);
 	});
 	$('.buttons').append(newButton);
+	buttonsMayHaveChanged();
     }
 }
 
@@ -94,6 +110,7 @@ function removeButtons(){
     $('#removeButtonDialog .buttonList :checkbox:checked').each(function(){
 	$(this).data('divButton').remove();
     });
+    buttonsMayHaveChanged();
 }
 
 

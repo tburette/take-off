@@ -1,9 +1,9 @@
 * buttons
 ** DONE add button in overlay
+** [#B] default set of buttons (to navigate in emacs)
 ** DONE add button in page
-** [#B] preset layout (navigate)
-** remove buttons
-*** deactivate if no buttons
+** DONE remove buttons
+*** DONE deactivate if no buttons		
 * layout ok for ipad/iphone
 * public release
 ** make a module (provide, ip/port, defvar, comment, elpa)
