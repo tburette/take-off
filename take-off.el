@@ -53,12 +53,12 @@
 (defvar take-off-server nil
   "Web server")
 
-(defvar take-off-docroot (expand-file-name default-directory))
+(defvar take-off-docroot (file-name-directory load-file-name))
 
 (defun take-off-static-files (request)
   "Handler that serves all the static files"
       (with-slots (process headers) request
-	(let ((serve-path (expand-file-name (concat take-off-docroot "../front")))
+	(let ((serve-path (expand-file-name (concat take-off-docroot "front")))
 	      (path (substring (cdr (assoc :GET headers)) 1)))
 	  (if (ws-in-directory-p serve-path path)
 	      (if (file-directory-p path)
@@ -96,10 +96,8 @@
       :point
       pointhash
       hashtable)
-
      (puthash :x (car pos-point-relative) pointhash)
      (puthash :y (cadr pos-point-relative) pointhash)
-
   )))
 
 ;json encode : hashtable become js object
