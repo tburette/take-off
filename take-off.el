@@ -67,8 +67,7 @@
 		    (expand-file-name path serve-path) "^[^\.]")
 		
 		(ws-send-file process (expand-file-name path serve-path)))
-	    (ws-send-404 process)))
-      ))
+	    (ws-send-404 process)))))
 
 (defun take-off-set-window-pos (window hashtable)
   (mapcar*;zip
@@ -77,8 +76,7 @@
      )
   '(:left :top :right :bottom)
   (window-inside-edges window))
-  hashtable
-)
+  hashtable)
 
 (defun take-off-set-point-pos (window hashtable)
   "Add window's point location to hashtable if window is the current window"
@@ -91,15 +89,13 @@
 	  (pos-point-relative (pos-visible-in-window-p (window-point window) window t))
 	  ;compute x y of point in abolute (relative to frame)
 	  (x-point (+ left (car pos-point-relative)))
-	  (y-point (+ top (cadr pos-point-relative)))
-	  )
+	  (y-point (+ top (cadr pos-point-relative))))
      (puthash
       :point
       pointhash
       hashtable)
      (puthash :x (car pos-point-relative) pointhash)
-     (puthash :y (cadr pos-point-relative) pointhash)
-  )))
+     (puthash :y (cadr pos-point-relative) pointhash))))
 
 ;json encode : hashtable become js object
 (defun take-off-visible-data ()
@@ -131,8 +127,7 @@
 	     )))
        (window-list))
       windows-data)
-    (json-encode windows-data))
-  )
+    (json-encode windows-data)))
 
 (defun take-off-web-socket-receive (proc string)
   "Handle web-socket requests sent by the browser agent"
@@ -143,21 +138,16 @@
 	 (key (when (assoc 'key json) (cdr (assoc 'key json))))
 	 (code (when (assoc 'code json) (cdr (assoc 'code json)))))
     (when key
-      (execute-kbd-macro (kbd key))
-    )
+      (execute-kbd-macro (kbd key)))
     (when code
-      (eval-expression (read code))
-    )
+      (eval-expression (read code)))
     (process-send-string proc
-			 (ws-web-socket-frame (take-off-visible-data) ))
-  )
-)
+			 (ws-web-socket-frame (take-off-visible-data)))))
 
 (defun take-off-change-hook-function (beginning end length)
   (if take-off-web-socket-process
       (process-send-string take-off-web-socket-process
-  			   (ws-web-socket-frame (take-off-visible-data) )))
-)
+  			   (ws-web-socket-frame (take-off-visible-data)))))
 	   
 (defun take-off-web-socket-connect (request)
   "Open a web socket connection
@@ -196,10 +186,7 @@ Assumes request is a web socket connection request."
 		(ws-response-header process
 				    200
 				    '("Content-Type" . "text/plain"))
-		(process-send-string process "Default handler\n")))
-	    )
-	   )
-
+		(process-send-string process "Default handler\n")))))
 	 port)))
 
 ;;;###autoload
