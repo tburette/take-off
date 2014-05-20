@@ -44,8 +44,9 @@
 ;;
 ;;; Code :
 
-
-(require 'cl)
+(when (and (= emacs-major-version 24) (< emacs-minor-version 4))
+  ;https://github.com/eschulte/emacs-web-server/issues/5
+  (require 'cl))
 (require 'json)
 (require 'web-server)
 
