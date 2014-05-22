@@ -169,14 +169,14 @@ function isModKey(key){
 //aggregate keys and send them grouped after a delay
 //emacs has no API to send keys events separately
 //e.g. C- then later 'a' won't be interpreted as C-a
-var timer = null;
-//start or restart timer
+var sendKeyTimer = null;
+//start or restart sendKeyTimer
 function startTimer(){
-    if(timer) clearTimeout(timer);
-    timer = setTimeout(function(){
-	timer = null;
+    if(sendKeyTimer) clearTimeout(sendKeyTimer);
+    sendKeyTimer = setTimeout(function(){
+	sendKeyTimer = null;
 	onTimerElapsed();
-    }, 800);
+    }, timerDuration);
 }
 
 //(wrongly) assumes only one modifier key can be active at a time
@@ -195,10 +195,9 @@ function onTimerElapsed(){
 function onKeyDown(e){
     var key = convertKey(e);
     if(key.toUpperCase() == "SHIFT")
-	//shift is not a special key nor a key to send to emacse
+	//shift is not a special key nor a key to send to emacs
 	//nothing to do
 	return;
-    //ws.send(key);
     e.preventDefault(true);
     
     if(isModKey(key)){
@@ -206,10 +205,9 @@ function onKeyDown(e){
 	return;
     }
 
-    if(!active_modifier && !timer && !key_buffer){
+    if(!active_modifier && !sendKeyTimer && !key_buffer){
 	console.log(key);
 	sendKey(convertToEmacsKey(key));
-	;
     }else{
 	if(!key_buffer) key_buffer = [];
 	key_buffer.push(convertToEmacsKey(key, active_modifier));
