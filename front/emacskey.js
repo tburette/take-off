@@ -172,6 +172,13 @@ function isModKey(key){
 var sendKeyTimer = null;
 //start or restart sendKeyTimer
 function startTimer(){
+    var timerDuration = 800;
+    if(hasFinishedCommand()) timerDuration = 0;
+    //give extra time if running command by name because as is emacs must
+    //receive the command in one go for it to be interpreted correctly. 
+    //give the user the time to type the whole command
+    else if(isTypingCommandByName()) timerDuration = 2000;
+
     if(sendKeyTimer) clearTimeout(sendKeyTimer);
     sendKeyTimer = setTimeout(function(){
 	sendKeyTimer = null;
@@ -182,6 +189,17 @@ function startTimer(){
 //(wrongly) assumes only one modifier key can be active at a time
 var active_modifier;
 var key_buffer = null;
+
+//M-x = run command by name aka execute-extended-command
+function isTypingCommandByName(){
+    return key_buffer && key_buffer[0] == "M-x";
+}
+
+//Finished typing command by typing <RET>
+function hasFinishedCommand(){
+    //ok if key_buffer = []
+    return key_buffer && key_buffer[key_buffer.length - 1] == "<RET>";
+}
 
 function onTimerElapsed(){
     if(key_buffer){
