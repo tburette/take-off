@@ -1,0 +1,20 @@
+/*
+Thank you http://colorschemedesigner.com/
+*/
+header {
+    background-color: #0C5AA6;
+    color: #679ED2;
+}
+
+body {
+    background-color: #408AD2;
+    color: #373737;
+}
+
+i.fa-paper-plane {
+    font-size: 8em;
+}
+
+.title {
+    font-family: sans-serif;
+}
