@@ -51,7 +51,7 @@ To stop the server:
 
     (take-off-stop)
 
-emacs will be available at : `http://<address>:<port>/emacs.html`
+emacs will be available at : `http://<local address>:<port>/`
 
 Error
 -----

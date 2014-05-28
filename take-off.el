@@ -56,18 +56,21 @@
 
 (defvar take-off-docroot (file-name-directory load-file-name))
 
-(defun take-off-static-files (request)
-  "Handler that serves all the static files"
-      (with-slots (process headers) request
-	(let ((serve-path (expand-file-name (concat take-off-docroot "front")))
-	      (path (substring (cdr (assoc :GET headers)) 1)))
-	  (if (ws-in-directory-p serve-path path)
-	      (if (file-directory-p path)
+(defun take-off-serve-file (request file)
+  "Serve file to the request"
+  (with-slots (process) request
+    (let ((serve-path (expand-file-name (concat take-off-docroot "front"))))
+      (if (ws-in-directory-p serve-path file)
+	      (if (file-directory-p file)
 		  (ws-send-directory-list process
-		    (expand-file-name path serve-path) "^[^\.]")
-		
-		(ws-send-file process (expand-file-name path serve-path)))
+		    (expand-file-name file serve-path) "^[^\.]")
+		(ws-send-file process (expand-file-name file serve-path)))
 	    (ws-send-404 process)))))
+
+(defun take-off-static-files (request)
+  "Handler that serve all the static files"
+      (with-slots (headers) request
+	(take-off-serve-file request (substring (cdr (assoc :GET headers)) 1))))
 
 (defun take-off-set-window-pos (window hashtable)
   (mapcar*;zip
@@ -179,6 +182,9 @@ Assumes request is a web socket connection request."
 	 '(
 	   (take-off-is-socket-request .
 				       take-off-web-socket-connect)
+	   ((:GET . "^/$") .
+	    (lambda (request)
+	      (take-off-serve-file request "emacs.html")))
 	   ((:GET . ".*") .  take-off-static-files)
 	   ((lambda (request) t).
 	    (lambda (request)
