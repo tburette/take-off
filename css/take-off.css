@@ -4,17 +4,79 @@ Thank you http://colorschemedesigner.com/
 header {
     background-color: #0C5AA6;
     color: #679ED2;
+    text-align: center;
 }
 
 body {
-    background-color: #408AD2;
+    background-color: #0C5AA6;
     color: #373737;
+    
+    /*limit width and center*/
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+
+    border: 2px dotted red;
 }
 
-i.fa-paper-plane {
-    font-size: 8em;
+article {
+    text-align: left;
+    background-color: #408AD2;
 }
 
-.title {
-    font-family: sans-serif;
+.cloud {
+    position: relative;
+    left: 50%;
 }
+
+.line-1 {
+/*    position: relative;
+    left: 60%;
+    padding-bottom: 1px;*/
+}
+
+.line-2 {
+/*    position: relative;
+    left: 25%;
+    padding-top: 1px;*/
+}
+
+.fa-terminal {
+/*    position: relative;
+    left: 6%;*/
+}
+
+.fa-terminal {
+    font-size: 4em;
+} 
+
+.fa-paper-plane {
+    font-size: 5em;
+}
+
+.logo-title {
+    font-family: Helvetica, Arial, Sans-Serif;
+    font-size: 170%;
+    padding-top: 0.2em;
+}
+
+.slogan {
+    font-size: 150%;
+    font-family: Helvetica, Arial, Sans-Serif;
+    font-weight: bold;
+    color: #408AD2;
+}
+
+.grid-3 {
+    /*box-sizing: border-box;*/
+    display: table;
+}
+
+.cell-3 {
+    /*box-sizing: border-box;
+    display: block;*/
+    width: 33%;
+    vertical-align: middle;
+    display: table-cell;
+}
+
