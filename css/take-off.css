@@ -45,6 +45,7 @@ header {
     position: relative;
     max-width: 900px;
     margin: auto;
+    margin-bottom: 40px;
 }
 
 .cloud {
@@ -73,14 +74,14 @@ header {
 
 }
 
-.fa-terminal {
+.terminal {
     position: relative;
     left: 6%;
 
     left: -37%;
 }
 
-.fa-terminal {
+.terminal {
     font-size: 4em;
 } 
 
@@ -124,21 +125,52 @@ header {
 article {
     text-align: left;
     background-color: #408AD2;
-    padding: 30px 50px;
+    padding: 0px 50px;
+    padding-bottom: 75px;
     max-width: 900px;
     margin: auto;
+    font-size: 25px;
 }
 
 article h1 {
-    font-size: 2em;
+    font-size: 1.6em;
     text-align: center;
     font-weight: 700;
-    padding-top: 1.5em;
-    padding-bottom: 1em;
+    padding-top: 2.5em;
+    padding-bottom: 0.75em;
     color: #0C5AA6;
 }
 
 article a {
     color: #0C5AA6;
     font-size: 1.4em;
+}
+
+.interact-image {
+    display: inline-block;
+
+    box-shadow: 0px 0px 15px #244f8c;
+
+}
+
+.interact-image img {
+    display: block;
+}
+
+.ipod {
+    margin-left: 40px;
+}
+
+
+/******************************************************************************
+Footer
+******************************************************************************/
+footer {
+    text-align: left;
+    color: #408AD2;
+    padding-top: 50px;
+    margin-bottom: 50px;
+
+    max-width: 900px;
+    margin: auto;
 }
