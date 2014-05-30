@@ -27,11 +27,6 @@ Thank you http://colorschemedesigner.com/
 body {
     background-color: #0C5AA6;
     color: #373737;
-    
-    /*limit width and center*/
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
     font-family: Helvetica, Arial, Sans-Serif;
     font-weight: bold;
 }
@@ -44,9 +39,12 @@ body {
 header {
     background-color: #0C5AA6;
     color: #679ED2;
-    /*important for relative (left, right) computations*/
+    /*affects left, right computations*/
     text-align: center;
+    /*create coordonate space for children*/
     position: relative;
+    max-width: 900px;
+    margin: auto;
 }
 
 .cloud {
@@ -127,6 +125,8 @@ article {
     text-align: left;
     background-color: #408AD2;
     padding: 30px 50px;
+    max-width: 900px;
+    margin: auto;
 }
 
 article h1 {
