@@ -39,19 +39,20 @@ In your emacs configuration file (.emacs) :
 Run
 ---
 
-Loading take-off:
+To start:
+    M-x take-off-start
 
-    (require 'take-off)
+You will be asked for a port.
+Emacs will be available at : `http://<local address>:<port>/`
 
-The following starts the web-server:
+To stop:
+   M-x take-off-stop
+
+
+From elisp code:
 
     (take-off-start <port>)
-
-To stop the server:
-
     (take-off-stop)
-
-emacs will be available at : `http://<local address>:<port>/`
 
 Error
 -----

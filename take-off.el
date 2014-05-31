@@ -139,12 +139,18 @@
      (puthash :x (car pos-point-relative) pointhash)
      (puthash :y (cadr pos-point-relative) pointhash))))
 
-;json encode : hashtable become js object
+;use json encode to convert lisp data into json : hashtable become js object
 (defun take-off-visible-data ()
   "Return a json value representing the current visible state of emacs"
   (let ((windows-data (make-hash-table)))
     (puthash :width (frame-width) windows-data)
     (puthash :height (frame-height) windows-data)
+    ;for each window we send its coordonates and 
+    ;the displayed buffer content as a single string containing \n
+    ;the client has to do the job of splitting that string
+    ;and arranging it on the screen.
+    ;It's slow and unwieldy.
+    ;Would be better if the server were to do that job
     (puthash :windows
       (mapcar
        (lambda (window)
@@ -158,6 +164,8 @@
 	     (puthash :text
 		 ;TODO window-end can be wrong
 		 ;https://github.com/rolandwalker/window-end-visible
+		 ;we do not parse any of the properties included in the string
+		 ;no faces, colors, formatting info or anything is used!
 	       (buffer-substring-no-properties 
 		(window-start window) 
 		(window-end window))
@@ -215,7 +223,7 @@ Assumes request is a web socket connection request."
 ;;;###autoload
 (defun take-off-start (port)
   "Start a web server that allows remote web access to emacs."
-  (interactive)
+  (interactive "nPort number: ")
   (setq take-off-server
 	(ws-start
 	 '(
