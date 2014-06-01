@@ -29,6 +29,12 @@ body {
     color: #373737;
     font-family: Helvetica, Arial, Sans-Serif;
     font-weight: bold;
+    line-height: 1.5em;
+}
+
+ul, ol {
+    list-style: disc;
+    line-height: 1.5em;
 }
 
 
@@ -129,14 +135,14 @@ article {
     padding-bottom: 75px;
     max-width: 900px;
     margin: auto;
-    font-size: 25px;
+    font-size: 20px;
 }
 
 article h1 {
     font-size: 1.6em;
     text-align: center;
     font-weight: 700;
-    padding-top: 2.5em;
+    padding-top: 2em;
     padding-bottom: 0.75em;
     color: #0C5AA6;
 }
@@ -157,8 +163,9 @@ article a {
     display: block;
 }
 
-.ipod {
+.space-image {
     margin-left: 40px;
+    margin-top: 20px;
 }
 
 
